@@ -1,0 +1,18 @@
+---
+- name: jeremy
+  hosts: lamp
+  become: root
+  vars:
+    jeremy: "hello, jeremy is starting learning the ansible :D"
+    a01228145: "student_number for jeremy is a01228145"
+  tasks: 
+    - name: Install apache2
+      become: yes 
+      apt:
+       name: apache2 
+       state: latest
+
+    - name: modify default site
+      template: 
+         src: "/etc/ansible/files/index.html.j2"
+         dest: "/var/www/html/index.html"

@@ -1,20 +1,56 @@
 ---
-- hosts: all
+- hosts: debian-jeremy
   become: true
-  vars:
-    jeremy: "hello, jeremy is starting learning the ansible :D"
-    a01228145: "student_number for jeremy is a01228145"
-    wpdname: "jeremy-areeb"
-    wpduser: "jeremy"
-    wpdpass: "Xhzssg123456"
   tasks:
-   - name: Install apache2
-     apt:
+   - name: prepare for install wordpress
+     package:
+      update_cache: yes
       name: 
        - apache2
        - mariadb-server
        - python-mysqldb
        - php
        - libapache2-mod-php
-       - 
+       - php-mysql
       state: latest
+   - name: create mysql database and restart apache2
+     mysql_user:
+          name: "{{wpduser}}"
+          password: "{{wpdpass}}"
+          priv: '{{wpdname}}.*:ALL'
+          state: present
+     ignore_errors: yes
+   - name: restart apache  
+     service:
+      name: apache2
+      enabled: yes
+   - name: download and tar -zxvf wordpress
+     unarchive:
+      src: https://wordpress.org/last.tar.gz
+      remote_src: yes
+      dest: "{{wppath}}"
+      extra_opts: [--strip-components=1]
+      creates: "{{wppath}}"
+   - name: set permissions
+     file:
+      path: "{{wppath}}"
+      state: directory
+      recurse: yes
+      owner: www-data
+      group: www-data
+   - name: change the wp-config-sample.php to wp-config.php and move to right root dir so we cna edit
+     command: mv {{wppath}}/wp-config-sample.php {{wppath}}/wp-config.php creates={{wppath}}wp-config.php 
+     become: yes
+   - name: update wordpress config file 
+     lineinfile: 
+      path: "{{wppath}}/wp-config.php" 
+      regexp: "{{item.regexp}}" 
+      line: "{{item.line}}"
+     with_items:
+      - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{wpdbname}}' );"}
+      - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{wpdbuser}}' );"}
+      - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{wpdbpass}}' );"}
+   - name: restart apache2
+     service:
+      name: apache2
+      state: restarted

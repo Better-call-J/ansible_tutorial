@@ -1,1 +1,3 @@
-10.0.2.16
+[debian-jeremy]
+10.0.2.16 wpdname=jeremy-areeb wpduser=jeremy wpdpass=123456 wpdhost=localhost wppath="/var/www/html"
+
