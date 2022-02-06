@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  vars:
+    jeremy: "hello, jeremy is starting learning the ansible :D"
+    a01228145: "student_number for jeremy is a01228145"
+    wpdname: "jeremy-areeb"
+    wpduser: "jeremy"
+    wpdpass: "Xhzssg123456"
+  tasks:
+   - name: Install apache2
+     apt:
+      name: 
+       - apache2
+       - mariadb-server
+       - python-mysqldb
+       - php
+       - libapache2-mod-php
+       - 
+      state: latest
