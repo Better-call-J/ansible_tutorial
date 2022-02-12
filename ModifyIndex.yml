@@ -14,5 +14,5 @@
 
     - name: modify default site
       template: 
-         src: "/etc/ansible/files/index.html.j2"
+         src: "~/ansible_tutorial/files/index.html.j2"
          dest: "/var/www/html/index.html"
