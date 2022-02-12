@@ -1,9 +1,9 @@
 ---
 - hosts: debian-jeremy
-  become: true
+  become: yes
   tasks:
    - name: prepare for install wordpress
-     package:
+     apt:
       update_cache: yes
       name: 
        - apache2
@@ -15,41 +15,41 @@
       state: latest
    - name: create mysql database and restart apache2
      mysql_user:
-          name: "{{wpduser}}"
-          password: "{{wpdpass}}"
-          priv: '{{wpdname}}.*:ALL'
-          state: present
+      name: "{{ wpduser }}"
+      password: "{{ wpdpass }}"
+      priv: '{{ wpdname }}.*:ALL'
+      state: present
      ignore_errors: yes
    - name: restart apache  
      service:
       name: apache2
       enabled: yes
-   - name: download and tar -zxvf wordpress
-     unarchive:
-      src: https://wordpress.org/last.tar.gz
-      remote_src: yes
-      dest: "{{wppath}}"
-      extra_opts: [--strip-components=1]
-      creates: "{{wppath}}"
+   - name: download wordpress
+     get_url:
+      url: https://wordpress.org/latest.tar.gz
+      dest: "{{ wppath }}"
+   - name: Extract wordpress
+     become: true
+     shell: "sudo tar xvzf /var/www/html/wordpress-5.9.tar.gz"
    - name: set permissions
      file:
-      path: "{{wppath}}"
+      path: /var/www/html/wordpress
       state: directory
       recurse: yes
       owner: www-data
       group: www-data
    - name: change the wp-config-sample.php to wp-config.php and move to right root dir so we cna edit
-     command: mv {{wppath}}/wp-config-sample.php {{wppath}}/wp-config.php creates={{wppath}}wp-config.php 
+     command: mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php creates=/var/www/html/wordpresswp-config.php 
      become: yes
    - name: update wordpress config file 
      lineinfile: 
-      path: "{{wppath}}/wp-config.php" 
+      path: /var/www/html/wordpress/wp-config.php
       regexp: "{{item.regexp}}" 
       line: "{{item.line}}"
      with_items:
-      - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{wpdbname}}' );"}
-      - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{wpdbuser}}' );"}
-      - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{wpdbpass}}' );"}
+      - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{ wpdname }}' );"}
+      - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{ wpduser }}' );"}
+      - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{ wpdpass }}' );"}
    - name: restart apache2
      service:
       name: apache2
