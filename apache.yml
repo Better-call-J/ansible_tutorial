@@ -1,6 +1,6 @@
 ---
 - hosts: debian-jeremy
-  become: yes
+  become: true
   tasks:
    - name: prepare for install wordpress
      apt:
@@ -14,6 +14,9 @@
        - php-mysql
       state: latest
    - name: create mysql database and restart apache2
+     mysql_db:
+      name: "{{ wpdname }}"    
+   - name: create db user
      mysql_user:
       name: "{{ wpduser }}"
       password: "{{ wpdpass }}"
@@ -27,10 +30,10 @@
    - name: download wordpress
      get_url:
       url: https://wordpress.org/latest.tar.gz
-      dest: "{{ wppath }}"
+      dest: /var/www/html/latest.tar.gz
    - name: Extract wordpress
      become: true
-     shell: "sudo tar xvzf /var/www/html/wordpress-5.9.tar.gz"
+     shell: "tar xvzf /var/www/html/latest.tar.gz"
    - name: set permissions
      file:
       path: /var/www/html/wordpress
@@ -41,6 +44,7 @@
    - name: change the wp-config-sample.php to wp-config.php and move to right root dir so we cna edit
      command: mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php creates=/var/www/html/wordpresswp-config.php 
      become: yes
+     ignore_errors: yes
    - name: update wordpress config file 
      lineinfile: 
       path: /var/www/html/wordpress/wp-config.php
