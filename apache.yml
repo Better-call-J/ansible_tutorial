@@ -42,7 +42,7 @@
       owner: www-data
       group: www-data
    - name: change the wp-config-sample.php to wp-config.php and move to right root dir so we cna edit
-     command: mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php creates=/var/www/html/wordpresswp-config.php 
+     command: mv /var/www/html/wordpress/wp-config-sample.php /var/www/html/wordpress/wp-config.php creates=/var/www/html/wordpress/wp-config.php 
      become: yes
      ignore_errors: yes
    - name: update wordpress config file 
