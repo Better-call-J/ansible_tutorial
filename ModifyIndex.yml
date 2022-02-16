@@ -1,6 +1,5 @@
 ---
-- name: jeremy
-  hosts: lamp
+- hosts: lamp
   become: root
   vars:
     jeremy: "hello, jeremy is starting learning the ansible :D"
