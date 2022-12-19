@@ -3,7 +3,7 @@
   become: root
   vars:
     jeremy: "hello, jeremy is starting learning the ansible :D"
-    a01228145: "student_number for jeremy is a01228145"
+    a01228145: "student_number for jeremy is xxxxxxxx"
   tasks: 
     - name: Install apache2
       become: yes 
